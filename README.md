@@ -18,8 +18,12 @@ npm install
 npm run dev        # http://localhost:3001
 ```
 
-Sign in with any email address. The role and plan pickers on the sign-in form
-are the point: they decide which screens refuse you.
+**There is no login.** Open any URL and you are already an owner on the top
+plan, so every screen works on a fresh browser — a login wall is a minute of
+nothing at the front of every demo.
+
+The gates are still real. To see one refuse you, go to `/sign-in` (linked as
+"Switch role or plan" in the sidebar) and become a member on the free plan.
 
 ## Pointing it at Oorb Signals
 

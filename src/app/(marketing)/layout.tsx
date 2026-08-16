@@ -27,11 +27,15 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
                         <Link href="/sign-in" className="rounded-md px-3 py-1.5 text-slate-600 hover:bg-slate-100">
                             Sign in
                         </Link>
+                        {/* Goes straight in — there is no signed-out state. The
+                            marketing pages keep their real calls to action
+                            because the App Map reads this file and a demo of a
+                            product with no front door is not a demo. */}
                         <Link
-                            href="/sign-up"
+                            href="/dashboard"
                             className="rounded-md bg-sea px-3 py-1.5 font-medium text-white hover:bg-sea/90"
                         >
-                            Start free
+                            Open the app
                         </Link>
                     </nav>
                 </div>

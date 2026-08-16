@@ -2,21 +2,25 @@ import type { Metadata } from "next";
 
 import { signInAction } from "@/lib/auth/actions";
 
-export const metadata: Metadata = { title: "Sign in" };
+export const metadata: Metadata = { title: "Switch role or plan" };
 
 /**
- * Sign in as anybody, in any shape.
+ * Become somebody else.
  *
- * The role and plan pickers are the whole point: every gated screen in this
- * app can be both reached and refused without touching a database.
+ * Not a login — this app has no signed-out state, and going straight to any
+ * screen works. This is how you get to the OTHER side of a gate: pick a member
+ * on the free plan and watch Admin, Team, API keys and Forecasting all refuse.
  */
 export default function SignInPage() {
     return (
         <div className="mx-auto max-w-sm space-y-6">
             <div>
-                <h1 className="text-2xl font-bold tracking-tight text-ink">Sign in</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-ink">
+                    Switch role or plan
+                </h1>
                 <p className="mt-1 text-sm text-slate-600">
-                    Any address works. Pick the role and plan you want to test.
+                    You are already signed in as an owner. Change the role or plan
+                    here to see a screen refuse you.
                 </p>
             </div>
 
@@ -86,7 +90,7 @@ export default function SignInPage() {
                     data-testid="sign-in-submit"
                     className="w-full rounded-md bg-sea px-4 py-2 text-sm font-medium text-white hover:bg-sea/90"
                 >
-                    Sign in
+                    Switch
                 </button>
             </form>
         </div>

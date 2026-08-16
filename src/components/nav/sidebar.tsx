@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { planAtLeast, type Session } from "@/lib/auth/session";
-import { signOutAction } from "@/lib/auth/actions";
 
 import { APP_NAV } from "./nav-items";
 
@@ -61,15 +60,15 @@ export function Sidebar({ session }: { session: Session }) {
                 <p className="px-2 text-xs text-slate-500">
                     {session.role} · {session.plan}
                 </p>
-                <form action={signOutAction}>
-                    <button
-                        type="submit"
-                        data-testid="sign-out"
-                        className="mt-2 w-full rounded-md px-2 py-1.5 text-left text-sm text-slate-500 hover:bg-slate-100 hover:text-ink"
-                    >
-                        Sign out
-                    </button>
-                </form>
+                {/* Not a logout — nobody is ever signed out here. This picks
+                    a different role and plan so a gate can be shown refusing. */}
+                <Link
+                    href="/sign-in"
+                    data-testid="switch-persona"
+                    className="mt-2 block rounded-md px-2 py-1.5 text-sm text-slate-500 hover:bg-slate-100 hover:text-ink"
+                >
+                    Switch role or plan
+                </Link>
             </div>
         </aside>
     );

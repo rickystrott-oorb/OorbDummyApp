@@ -36,9 +36,15 @@ export async function signInAction(formData: FormData): Promise<void> {
     redirect("/dashboard");
 }
 
-/** Sign out and land back on the marketing page. */
+/**
+ * Drop the chosen persona.
+ *
+ * Not a logout: clearing the cookie returns you to the default owner, because
+ * nobody is ever signed out of this app. It is "stop pretending to be a member"
+ * rather than "leave".
+ */
 export async function signOutAction(): Promise<void> {
     const store = await cookies();
     store.delete(SESSION_COOKIE);
-    redirect("/");
+    redirect("/dashboard");
 }
