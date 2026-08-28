@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 
+import { OorbIdentity } from "@/components/oorb-identity";
 import { getSession } from "@/lib/auth/session";
 
 import "./globals.css";
@@ -18,10 +19,10 @@ export const metadata: Metadata = {
  * values come from the environment so this repo carries no key of its own:
  * with them unset the tag is simply not rendered.
  *
- * IDENTITY RIDES ON THE TAG, which is the whole point of doing it this way in
- * a server-rendered app: the layout already knows who is signed in, so the
- * address is interpolated into the markup and there is no JS call to time
- * correctly. An SPA would call `window.oorb.identify()` after login instead.
+ * IDENTITY RIDES ON THE TAG **and is then kept true by `<OorbIdentity/>`**.
+ * The tag alone is right only for the first load: `o.js` reads it when it
+ * boots, and in the App Router signing in is a client navigation, so the
+ * script never re-executes. See the component — it cost a live test to find.
  *
  * Note what is NOT happening. This app keeps its session in an `httpOnly`
  * cookie, which JavaScript cannot read by design — so a tracking script could
@@ -56,6 +57,13 @@ export default async function RootLayout({
                               }
                             : {})}
                         strategy="afterInteractive"
+                    />
+                )}
+                {key && src && (
+                    <OorbIdentity
+                        userId={session?.userId}
+                        email={session?.email}
+                        name={session?.name}
                     />
                 )}
             </body>
