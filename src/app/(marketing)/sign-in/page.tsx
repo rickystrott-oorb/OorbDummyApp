@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { signInAction } from "@/lib/auth/actions";
+import { PERSONAS } from "@/lib/auth/personas";
 
 export const metadata: Metadata = { title: "Switch role or plan" };
 
@@ -22,6 +23,41 @@ export default function SignInPage() {
                     You are already signed in as an owner. Change the role or plan
                     here to see a screen refuse you.
                 </p>
+            </div>
+
+            {/* One click per person, because the reason to switch is usually to
+                watch Oorb resolve a DIFFERENT company — and typing an address
+                by hand invites the typo that makes a match silently fail. */}
+            <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <p className="text-xs font-medium text-ink">Be somebody else</p>
+                <p className="mt-0.5 text-xs text-slate-600">
+                    Each of these arrives at Oorb differently — see what its
+                    Signals page makes of them.
+                </p>
+                <div className="mt-2 space-y-1.5">
+                    {PERSONAS.map((persona) => (
+                        <form key={persona.email} action={signInAction}>
+                            <input type="hidden" name="email" value={persona.email} />
+                            <button
+                                type="submit"
+                                className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-left hover:border-sea"
+                            >
+                                <span className="block text-sm font-medium text-ink">
+                                    {persona.name}{" "}
+                                    <span className="font-normal text-slate-500">
+                                        · {persona.company}
+                                    </span>
+                                </span>
+                                <span className="block font-mono text-[11px] text-slate-500">
+                                    {persona.email}
+                                </span>
+                                <span className="block text-[11px] text-slate-500">
+                                    {persona.demonstrates}
+                                </span>
+                            </button>
+                        </form>
+                    ))}
+                </div>
             </div>
 
             <form action={signInAction} className="space-y-4">

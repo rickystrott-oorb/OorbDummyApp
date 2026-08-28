@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { findPersona } from "./personas";
 import { SESSION_COOKIE, type Plan, type Role } from "./session";
 
 /**
@@ -17,16 +18,24 @@ export async function signInAction(formData: FormData): Promise<void> {
     const role = String(formData.get("role") ?? "member") as Role;
     const plan = String(formData.get("plan") ?? "free") as Plan;
 
+    /**
+     * A known persona brings its own name and id, so two people at the same
+     * company are two people rather than two spellings of one. A typed-in
+     * address still works — it just gets a name derived from the local part.
+     */
+    const persona = findPersona(email);
+
     const store = await cookies();
     store.set(
         SESSION_COOKIE,
         encodeURIComponent(
             JSON.stringify({
-                userId: "u_1",
-                name: email.split("@")[0] || "Dana Whitfield",
-                email: email || "dana@northwind.test",
-                role,
-                plan,
+                userId: persona?.userId ?? "u_1",
+                name: persona?.name ?? email.split("@")[0] ?? "Dana Whitfield",
+                email: persona?.email ?? email ?? "dana@northwind.test",
+                // A persona's own role and plan unless the form overrode them.
+                role: (formData.get("role") ? role : (persona?.role ?? role)) as Role,
+                plan: (formData.get("plan") ? plan : (persona?.plan ?? plan)) as Plan,
                 subscriptionActive: true,
             })
         ),
