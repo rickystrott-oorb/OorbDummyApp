@@ -54,6 +54,16 @@ export default async function RootLayout({
                                   "data-user-id": session.userId,
                                   "data-user-email": session.email,
                                   "data-user-name": session.name,
+                                  // Which customer workspace is open. Absent
+                                  // for a single-company user, whose domain
+                                  // already says; present for a consultant,
+                                  // whose domain says nothing.
+                                  ...(session.accountId
+                                      ? {
+                                            "data-account-id": session.accountId,
+                                            "data-account-domain": session.accountDomain,
+                                        }
+                                      : {}),
                               }
                             : {})}
                         strategy="afterInteractive"
@@ -64,6 +74,8 @@ export default async function RootLayout({
                         userId={session?.userId}
                         email={session?.email}
                         name={session?.name}
+                        accountId={session?.accountId}
+                        accountDomain={session?.accountDomain}
                     />
                 )}
             </body>

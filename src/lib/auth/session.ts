@@ -35,6 +35,14 @@ export interface Session {
     plan: Plan;
     /** False after a failed renewal — the condition the billing screens read. */
     subscriptionActive: boolean;
+    /**
+     * The customer workspace this person currently has open, if the persona
+     * has more than one. Absent for an ordinary user, whose one company is
+     * implied by their email — which is exactly the case Oorb resolves by
+     * domain. Present for a consultant, for whom the domain says nothing.
+     */
+    accountId?: string;
+    accountDomain?: string;
 }
 
 const COOKIE = "ledgerline_session";
@@ -79,6 +87,12 @@ export async function getSession(): Promise<Session | null> {
             role: ROLES.includes(parsed.role as Role) ? (parsed.role as Role) : "member",
             plan: PLANS.includes(parsed.plan as Plan) ? (parsed.plan as Plan) : "free",
             subscriptionActive: parsed.subscriptionActive !== false,
+            ...(typeof parsed.accountId === "string" && parsed.accountId
+                ? { accountId: parsed.accountId }
+                : {}),
+            ...(typeof parsed.accountDomain === "string" && parsed.accountDomain
+                ? { accountDomain: parsed.accountDomain }
+                : {}),
         };
     } catch {
         // A corrupt cookie is not a reason to show somebody a login wall.

@@ -22,7 +22,13 @@ import { useEffect } from "react";
  */
 
 interface OorbApi {
-    identify(input: { userId?: string; email?: string; name?: string }): void;
+    identify(input: {
+        userId?: string;
+        email?: string;
+        name?: string;
+        /** The customer workspace open right now — see the layout. */
+        account?: { id?: string; domain?: string };
+    }): void;
     reset(): void;
 }
 
@@ -34,10 +40,14 @@ export function OorbIdentity({
     userId,
     email,
     name,
+    accountId,
+    accountDomain,
 }: {
     userId?: string;
     email?: string;
     name?: string;
+    accountId?: string;
+    accountDomain?: string;
 }) {
     useEffect(() => {
         let timer: ReturnType<typeof setInterval> | null = null;
@@ -48,7 +58,20 @@ export function OorbIdentity({
             if (!oorb) return false;
             // Signing out is a real event, and its own call: `identify` merges,
             // so passing nothing would leave the last person in place.
-            if (email) oorb.identify({ userId, email, name });
+            if (email) {
+                oorb.identify({
+                    userId,
+                    email,
+                    name,
+                    // Switching workspace re-runs this effect (the props
+                    // change), and o.js starts a new session for the new
+                    // account — so a consultant's clicks in Levis never land
+                    // on Northwind's row.
+                    ...(accountId || accountDomain
+                        ? { account: { id: accountId, domain: accountDomain } }
+                        : {}),
+                });
+            }
             else oorb.reset();
             return true;
         };
@@ -69,7 +92,7 @@ export function OorbIdentity({
         return () => {
             if (timer) clearInterval(timer);
         };
-    }, [userId, email, name]);
+    }, [userId, email, name, accountId, accountDomain]);
 
     return null;
 }

@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { planAtLeast, type Session } from "@/lib/auth/session";
+import { findPersona } from "@/lib/auth/personas";
+import { switchWorkspaceAction } from "@/lib/auth/actions";
 
 import { APP_NAV } from "./nav-items";
 
@@ -60,6 +62,7 @@ export function Sidebar({ session }: { session: Session }) {
                 <p className="px-2 text-xs text-slate-500">
                     {session.role} · {session.plan}
                 </p>
+                <WorkspaceSwitcher session={session} />
                 {/* Not a logout — nobody is ever signed out here. This picks
                     a different role and plan so a gate can be shown refusing. */}
                 <Link
@@ -71,5 +74,45 @@ export function Sidebar({ session }: { session: Session }) {
                 </Link>
             </div>
         </aside>
+    );
+}
+
+
+/**
+ * Which customer's workspace is open, for a person who has more than one.
+ *
+ * Renders nothing for an ordinary user. The consultant sees their two
+ * workspaces and can move between them; each switch rewrites the session
+ * cookie and the layout then tells Oorb the new account — which is the whole
+ * point of the persona.
+ */
+function WorkspaceSwitcher({ session }: { session: Session }) {
+    const accounts = findPersona(session.email)?.accounts ?? [];
+    if (accounts.length < 2) return null;
+
+    return (
+        <div className="mt-2 px-2">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                Workspace
+            </p>
+            <div className="mt-1 space-y-0.5">
+                {accounts.map((account) => (
+                    <form key={account.id} action={switchWorkspaceAction}>
+                        <input type="hidden" name="accountId" value={account.id} />
+                        <button
+                            type="submit"
+                            data-testid={`workspace-${account.id}`}
+                            className={`w-full rounded-md px-2 py-1 text-left text-sm ${
+                                account.id === session.accountId
+                                    ? "bg-slate-100 font-medium text-ink"
+                                    : "text-slate-500 hover:bg-slate-100 hover:text-ink"
+                            }`}
+                        >
+                            {account.name}
+                        </button>
+                    </form>
+                ))}
+            </div>
+        </div>
     );
 }

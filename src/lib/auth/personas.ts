@@ -19,6 +19,14 @@ import type { Plan, Role } from "./session";
  * domain — nothing here can accidentally address a live person.
  */
 
+/** A customer workspace a person can act inside. */
+export interface Account {
+    /** The app's own id — what `identify({ account: { id } })` sends. */
+    id: string;
+    domain: string;
+    name: string;
+}
+
 export interface Persona {
     userId: string;
     name: string;
@@ -28,6 +36,13 @@ export interface Persona {
     plan: Plan;
     /** What this one is for, shown beside the button. */
     demonstrates: string;
+    /**
+     * Workspaces this person can switch between. Only the consultant has
+     * these: an ordinary user's single company is implied by their email, and
+     * leaving `accounts` off is what keeps those personas exercising the
+     * domain-resolution path rather than the account-hint one.
+     */
+    accounts?: Account[];
 }
 
 export const PERSONAS: Persona[] = [
@@ -66,6 +81,24 @@ export const PERSONAS: Persona[] = [
         role: "member",
         plan: "free",
         demonstrates: "Personal address — matches nothing",
+    },
+    /**
+     * The case that breaks email-domain resolution. One address, working
+     * inside two different customers' workspaces; `brightconsulting.test`
+     * is nobody's company. Oorb has to be TOLD which workspace is open.
+     */
+    {
+        userId: "u_5",
+        name: "Alex Chen",
+        email: "alex@brightconsulting.test",
+        company: "Bright Consulting",
+        role: "admin",
+        plan: "scale",
+        demonstrates: "A consultant inside two customers' workspaces",
+        accounts: [
+            { id: "ws_northwind", domain: "northwind.test", name: "Northwind Freight" },
+            { id: "ws_levis", domain: "levis.test", name: "Levis" },
+        ],
     },
 ];
 
