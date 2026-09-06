@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
 
 import { planAtLeast, requireSession } from "@/lib/auth/session";
-import { Card, Locked, PageHeader, Table } from "@/components/ui/primitives";
+import { API_KEYS } from "@/lib/data/fixtures";
+import { ButtonLink, Locked, PageHeader, RowLink, Table } from "@/components/ui/primitives";
 
 export const metadata: Metadata = { title: "API keys" };
-
-const KEYS = [
-    { id: "k_live", label: "Production", prefix: "lk_live_9f2a…", created: "2025-11-04", lastUsed: "2 hours ago" },
-    { id: "k_test", label: "Sandbox", prefix: "lk_test_41c8…", created: "2025-11-04", lastUsed: "never" },
-];
 
 /**
  * Programmatic access.
@@ -42,28 +38,28 @@ export default async function ApiKeysPage() {
 
     return (
         <>
-            <PageHeader title="API keys" description="Never shown in full after they are created." />
+            <PageHeader
+                title="API keys"
+                description="Never shown in full after they are created."
+                action={
+                    <ButtonLink href="/settings/api-keys/new" testId="create-key">
+                        Create a key
+                    </ButtonLink>
+                }
+            />
 
             <Table columns={["Label", "Key", "Created", "Last used"]}>
-                {KEYS.map((key) => (
-                    <tr key={key.id}>
-                        <td className="px-4 py-2.5 font-medium text-ink">{key.label}</td>
+                {API_KEYS.map((key) => (
+                    <tr key={key.id} className="hover:bg-slate-50">
+                        <td className="px-4 py-2.5">
+                            <RowLink href={`/settings/api-keys/${key.id}`}>{key.label}</RowLink>
+                        </td>
                         <td className="px-4 py-2.5 font-mono text-xs text-slate-600">{key.prefix}</td>
                         <td className="px-4 py-2.5 text-slate-600">{key.created}</td>
                         <td className="px-4 py-2.5 text-slate-600">{key.lastUsed}</td>
                     </tr>
                 ))}
             </Table>
-
-            <Card>
-                <button
-                    type="button"
-                    data-testid="create-key"
-                    className="rounded-md bg-sea px-4 py-2 text-sm font-medium text-white hover:bg-sea/90"
-                >
-                    Create a key
-                </button>
-            </Card>
         </>
     );
 }

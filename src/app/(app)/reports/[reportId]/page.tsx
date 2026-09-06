@@ -1,21 +1,14 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import { planAtLeast, requireSession } from "@/lib/auth/session";
-import { money, reportById, CUSTOMERS } from "@/lib/data/fixtures";
-import { Card, Locked, PageHeader, Table } from "@/components/ui/primitives";
+import { CUSTOMERS, money, reportById, runsForReport } from "@/lib/data/fixtures";
+import { Card, RowLink, Table } from "@/components/ui/primitives";
 import { ExportButton } from "@/components/ui/export-button";
 
 export const metadata: Metadata = { title: "Report" };
 
-/**
- * One report.
- *
- * The plan gate lives here, not in the catalogue: the list decides what to
- * SHOW, and this decides what to serve. A reader following the link from a
- * lower plan gets an explanation rather than a blank page.
- */
-export default async function ReportDetailPage({
+/** The most recent run of the report. The plan gate is on the layout. */
+export default async function ReportLatestPage({
     params,
 }: {
     params: Promise<{ reportId: string }>;
@@ -24,43 +17,35 @@ export default async function ReportDetailPage({
     const report = reportById(reportId);
     if (!report) notFound();
 
-    const session = await requireSession();
-
-    if (!planAtLeast(session.plan, report.minimumPlan)) {
-        return (
-            <>
-                <PageHeader title={report.name} description={report.summary} />
-                <Locked
-                    reason={`${report.name} is part of the ${report.minimumPlan} plan. This workspace is on ${session.plan}.`}
-                    cta="Compare plans"
-                />
-            </>
-        );
-    }
+    const latest = runsForReport(report.id)[0];
 
     return (
         <>
-            <PageHeader
-                title={report.name}
-                description={`${report.summary} · runs ${report.cadence}`}
-                action={<ExportButton />}
-            />
-
             <Card>
-                <p className="text-sm text-slate-600">
-                    Figures below are fixtures. They do not change between runs, which
-                    is deliberate — a number that moved on refresh would look live.
-                </p>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-sm text-slate-600">
+                        {latest ? (
+                            <>
+                                Last run {latest.ranAt} ({latest.trigger}) —{" "}
+                                <RowLink href={`/reports/${report.id}/runs/${latest.id}`}>see that run</RowLink>.
+                            </>
+                        ) : (
+                            "This report has not run yet. Configure it and run it now."
+                        )}{" "}
+                        Figures are fixtures and do not change between runs, which is deliberate.
+                    </p>
+                    <ExportButton />
+                </div>
             </Card>
 
             <Table columns={["Customer", "Country", "Contribution"]}>
                 {CUSTOMERS.filter((customer) => customer.mrrCents > 0).map((customer) => (
                     <tr key={customer.id}>
-                        <td className="px-4 py-2.5 font-medium text-ink">{customer.name}</td>
-                        <td className="px-4 py-2.5 text-slate-600">{customer.country}</td>
-                        <td className="px-4 py-2.5 tabular-nums text-slate-900">
-                            {money(customer.mrrCents * 12)}
+                        <td className="px-4 py-2.5">
+                            <RowLink href={`/customers/${customer.id}`}>{customer.name}</RowLink>
                         </td>
+                        <td className="px-4 py-2.5 text-slate-600">{customer.country}</td>
+                        <td className="px-4 py-2.5 tabular-nums text-slate-900">{money(customer.mrrCents * 12)}</td>
                     </tr>
                 ))}
             </Table>

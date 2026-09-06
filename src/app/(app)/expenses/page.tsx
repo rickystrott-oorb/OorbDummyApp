@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 
 import { EXPENSES, money } from "@/lib/data/fixtures";
-import { PageHeader, Table } from "@/components/ui/primitives";
+import { Badge, PageHeader, RowLink, Table } from "@/components/ui/primitives";
 import { ExportButton } from "@/components/ui/export-button";
 
 export const metadata: Metadata = { title: "Expenses" };
 
-/** Money out. The only list with no detail page behind it. */
+/** Money out. Each row opens, and the ones still waiting can be approved there. */
 export default function ExpensesPage() {
     return (
         <>
@@ -16,14 +16,16 @@ export default function ExpensesPage() {
                 action={<ExportButton />}
             />
 
-            <Table columns={["Vendor", "Category", "Incurred", "Reimbursable", "Amount"]}>
+            <Table columns={["Vendor", "Category", "Incurred", "Status", "Amount"]}>
                 {EXPENSES.map((expense) => (
                     <tr key={expense.id} className="hover:bg-slate-50">
-                        <td className="px-4 py-2.5 font-medium text-ink">{expense.vendor}</td>
+                        <td className="px-4 py-2.5">
+                            <RowLink href={`/expenses/${expense.id}`}>{expense.vendor}</RowLink>
+                        </td>
                         <td className="px-4 py-2.5 text-slate-600">{expense.category}</td>
                         <td className="px-4 py-2.5 text-slate-600">{expense.incurred}</td>
-                        <td className="px-4 py-2.5 text-slate-600">
-                            {expense.reimbursable ? "Yes" : "No"}
+                        <td className="px-4 py-2.5">
+                            <Badge value={expense.status} />
                         </td>
                         <td className="px-4 py-2.5 tabular-nums text-slate-900">
                             {money(expense.amountCents)}

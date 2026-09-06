@@ -1,14 +1,19 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import { customerById, invoiceById, money } from "@/lib/data/fixtures";
-import { Badge, Card, PageHeader, RowLink } from "@/components/ui/primitives";
-import { ExportButton } from "@/components/ui/export-button";
+import {
+    activityForInvoice,
+    contactsForCustomer,
+    invoiceById,
+    money,
+    paymentsForInvoice,
+} from "@/lib/data/fixtures";
+import { Card, Facts, Stat } from "@/components/ui/primitives";
 
 export const metadata: Metadata = { title: "Invoice" };
 
-/** One invoice, its lines and who owes it. */
-export default async function InvoiceDetailPage({
+/** Where the invoice stands: what is owed, what has arrived, who it went to. */
+export default async function InvoiceOverviewPage({
     params,
 }: {
     params: Promise<{ invoiceId: string }>;
@@ -17,68 +22,33 @@ export default async function InvoiceDetailPage({
     const invoice = invoiceById(invoiceId);
     if (!invoice) notFound();
 
-    const customer = customerById(invoice.customerId);
+    const settled = paymentsForInvoice(invoice.id)
+        .filter((payment) => payment.status === "settled")
+        .reduce((total, payment) => total + payment.amountCents, 0);
+    const primary = contactsForCustomer(invoice.customerId).find((contact) => contact.primary);
+    const latest = activityForInvoice(invoice.id).at(-1);
 
     return (
         <>
-            <PageHeader
-                title={invoice.number}
-                description={`Issued ${invoice.issued} · due ${invoice.due}`}
-                action={<ExportButton label="Export PDF" />}
-            />
-
-            <div className="flex flex-wrap items-center gap-3">
-                <Badge value={invoice.status} />
-                {customer && (
-                    <RowLink href={`/customers/${customer.id}`}>{customer.name}</RowLink>
-                )}
+            <div className="grid gap-4 sm:grid-cols-3">
+                <Stat label="Total" value={money(invoice.totalCents)} />
+                <Stat label="Received" value={money(settled)} />
+                <Stat
+                    label="Outstanding"
+                    value={money(Math.max(invoice.totalCents - settled, 0))}
+                    hint={invoice.status === "overdue" ? "Past due" : undefined}
+                />
             </div>
 
             <Card>
-                <table className="w-full text-sm">
-                    <thead>
-                        <tr className="border-b border-slate-100">
-                            <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                Description
-                            </th>
-                            <th className="pb-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                Qty
-                            </th>
-                            <th className="pb-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                Unit
-                            </th>
-                            <th className="pb-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                Amount
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                        {invoice.lines.map((line) => (
-                            <tr key={line.description}>
-                                <td className="py-2 text-slate-700">{line.description}</td>
-                                <td className="py-2 text-right tabular-nums text-slate-600">
-                                    {line.quantity}
-                                </td>
-                                <td className="py-2 text-right tabular-nums text-slate-600">
-                                    {money(line.unitCents)}
-                                </td>
-                                <td className="py-2 text-right tabular-nums text-slate-900">
-                                    {money(line.quantity * line.unitCents)}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                    <tfoot>
-                        <tr className="border-t border-slate-200">
-                            <td colSpan={3} className="pt-2 text-right text-sm font-medium text-ink">
-                                Total
-                            </td>
-                            <td className="pt-2 text-right text-sm font-bold tabular-nums text-ink">
-                                {money(invoice.totalCents)}
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                <Facts
+                    items={[
+                        { label: "Billed to", value: primary ? `${primary.name} · ${primary.email}` : "—" },
+                        { label: "Lines", value: `${invoice.lines.length}` },
+                        { label: "Last activity", value: latest ? `${latest.what} · ${latest.at}` : "Nothing yet" },
+                        { label: "Reference", value: invoice.id },
+                    ]}
+                />
             </Card>
         </>
     );
