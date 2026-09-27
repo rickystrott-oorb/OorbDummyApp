@@ -83,6 +83,20 @@ export const PERSONAS: Persona[] = [
         demonstrates: "Personal address — matches nothing",
     },
     /**
+     * Nothing in Oorb at all: a person from a company nobody has added. The
+     * case a brand-new sign-up is — and the one Oorb has to PROMPT about,
+     * because no domain match can quietly file them anywhere.
+     */
+    {
+        userId: "u_6",
+        name: "Tomas Reyes",
+        email: "tomas@harborlight.test",
+        company: "Harborlight Shipping",
+        role: "owner",
+        plan: "growth",
+        demonstrates: "Unknown person, unknown company — nothing in Oorb yet",
+    },
+    /**
      * The case that breaks email-domain resolution. One address, working
      * inside two different customers' workspaces; `brightconsulting.test`
      * is nobody's company. Oorb has to be TOLD which workspace is open.
