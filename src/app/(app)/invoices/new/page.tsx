@@ -44,7 +44,7 @@ export default async function NewInvoicePage({
                 <form action={createInvoiceAction} className="space-y-4">
                     {error && (
                         <p className="text-sm text-red-600">
-                            Choose a customer and enter an amount greater than zero.
+                            That did not save. Choose a customer and enter an amount above zero.
                         </p>
                     )}
                     <div>
@@ -102,6 +102,9 @@ export default async function NewInvoicePage({
                                 name="amount"
                                 type="number"
                                 min="0.01"
+                                // The action's own ceiling, so the browser
+                                // says so before the server has to.
+                                max="1000000000000"
                                 step="0.01"
                                 required
                                 placeholder="1500.00"

@@ -8,6 +8,14 @@ import { requireSession } from "@/lib/auth/session";
 import { CUSTOMERS, addInvoice, type Invoice } from "./fixtures";
 
 const STATUSES: Invoice["status"][] = ["sent", "draft", "overdue", "paid"];
+/**
+ * The most one invoice may be for. A sanity bound, not a business rule: it
+ * keeps a typo's worth of digits out of the store while leaving every real
+ * figure alone. It used to be ten million, which a single large invoice
+ * passes — and the form answered that with "enter an amount greater than
+ * zero", so the page looked as though it could not save at all.
+ */
+const MAX_AMOUNT = 1_000_000_000_000;
 const TERM_DAYS: Record<string, number> = { "Net 30": 30, "Net 14": 14, "Due on receipt": 0 };
 
 /**
@@ -29,7 +37,7 @@ export async function createInvoiceAction(formData: FormData): Promise<void> {
         !CUSTOMERS.some((customer) => customer.id === customerId) ||
         !Number.isFinite(amount) ||
         amount <= 0 ||
-        amount > 10_000_000 ||
+        amount > MAX_AMOUNT ||
         !STATUSES.includes(status)
     ) {
         redirect("/invoices/new?error=1");
