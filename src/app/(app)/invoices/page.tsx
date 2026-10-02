@@ -6,6 +6,9 @@ import { ExportButton } from "@/components/ui/export-button";
 
 export const metadata: Metadata = { title: "Invoices" };
 
+/** The list reads the in-memory store, which the New invoice form appends to. */
+export const dynamic = "force-dynamic";
+
 /**
  * Every invoice. Note this file contains no href of its own — the link to a
  * row's detail page is inside `RowLink`, which is how most list screens are

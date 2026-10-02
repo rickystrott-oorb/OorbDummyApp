@@ -69,7 +69,7 @@ export const CUSTOMERS: Customer[] = [
     { id: "c_orrin", name: "Orrin Health", domain: "orrinhealth.test", contact: "Samuel Okafor", country: "Canada", status: "active", mrrCents: 331000, since: "2024-06-17" },
 ];
 
-export const INVOICES: Invoice[] = [
+const SEED_INVOICES: Invoice[] = [
     { id: "i_2411", number: "INV-2411", customerId: "c_northwind", issued: "2026-07-01", due: "2026-07-31", status: "paid", totalCents: 480000, lines: [{ description: "Platform subscription — July", quantity: 1, unitCents: 420000 }, { description: "Additional seats", quantity: 4, unitCents: 15000 }] },
     { id: "i_2412", number: "INV-2412", customerId: "c_alder", issued: "2026-07-01", due: "2026-07-31", status: "paid", totalCents: 215000, lines: [{ description: "Platform subscription — July", quantity: 1, unitCents: 215000 }] },
     { id: "i_2413", number: "INV-2413", customerId: "c_kestrel", issued: "2026-07-14", due: "2026-08-13", status: "overdue", totalCents: 96000, lines: [{ description: "Platform subscription — July", quantity: 1, unitCents: 96000 }] },
@@ -77,6 +77,47 @@ export const INVOICES: Invoice[] = [
     { id: "i_2415", number: "INV-2415", customerId: "c_northwind", issued: "2026-08-01", due: "2026-08-31", status: "sent", totalCents: 495000, lines: [{ description: "Platform subscription — August", quantity: 1, unitCents: 420000 }, { description: "Additional seats", quantity: 5, unitCents: 15000 }] },
     { id: "i_2416", number: "INV-2416", customerId: "c_pellhaus", issued: "2026-08-12", due: "2026-09-11", status: "draft", totalCents: 128000, lines: [{ description: "Pilot — 30 days", quantity: 1, unitCents: 128000 }] },
 ];
+
+/**
+ * The invoices, as a PSEUDO-DATABASE: an array held on `globalThis`.
+ *
+ * Seeded from the fixtures above and appended to by the New invoice form, so
+ * the dashboard's Outstanding figure can be moved by hand — which is what a
+ * number-on-the-customer's-screen feature needs to be tested against. On
+ * `globalThis` rather than at module scope because the dev server re-evaluates
+ * this module on every edit, and an invoice that vanished whenever a file was
+ * saved would be no test at all. It still resets when the server restarts;
+ * nothing here is persistence.
+ */
+const invoiceStore = globalThis as typeof globalThis & { __ledgerlineInvoices?: Invoice[] };
+export const INVOICES: Invoice[] = (invoiceStore.__ledgerlineInvoices ??= SEED_INVOICES.map((invoice) => ({
+    ...invoice,
+})));
+
+/** Appends one invoice with the next number in the series, and returns it. */
+export function addInvoice(input: {
+    customerId: string;
+    issued: string;
+    due: string;
+    status: Invoice["status"];
+    totalCents: number;
+    description: string;
+}): Invoice {
+    const next =
+        INVOICES.reduce((highest, invoice) => Math.max(highest, Number(invoice.number.replace(/\D/g, "")) || 0), 0) + 1;
+    const invoice: Invoice = {
+        id: `i_${next}`,
+        number: `INV-${next}`,
+        customerId: input.customerId,
+        issued: input.issued,
+        due: input.due,
+        status: input.status,
+        totalCents: input.totalCents,
+        lines: [{ description: input.description, quantity: 1, unitCents: input.totalCents }],
+    };
+    INVOICES.push(invoice);
+    return invoice;
+}
 
 export const PAYMENTS: Payment[] = [
     { id: "p_881", invoiceId: "i_2411", method: "transfer", receivedAt: "2026-07-24", amountCents: 480000, status: "settled" },

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { requireSession } from "@/lib/auth/session";
 import { CUSTOMERS, INVOICES, PAYMENTS, money } from "@/lib/data/fixtures";
-import { Card, PageHeader, Stat } from "@/components/ui/primitives";
+import { ButtonLink, Card, PageHeader, Stat } from "@/components/ui/primitives";
 import { ExportButton } from "@/components/ui/export-button";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -11,10 +11,8 @@ export const metadata: Metadata = { title: "Dashboard" };
 export default async function DashboardPage() {
     const session = await requireSession();
 
-    const outstanding = INVOICES.filter((invoice) => invoice.status !== "paid").reduce(
-        (total, invoice) => total + invoice.totalCents,
-        0
-    );
+    const unpaid = INVOICES.filter((invoice) => invoice.status !== "paid");
+    const outstanding = unpaid.reduce((total, invoice) => total + invoice.totalCents, 0);
     const collected = PAYMENTS.filter((payment) => payment.status === "settled").reduce(
         (total, payment) => total + payment.amountCents,
         0
@@ -26,11 +24,18 @@ export default async function DashboardPage() {
             <PageHeader
                 title={`Good morning, ${session.name}`}
                 description="Where the money stands this month."
-                action={<ExportButton label="Export summary" />}
+                action={
+                    <div className="flex items-center gap-2">
+                        <ButtonLink href="/invoices/new" tone="secondary" testId="dashboard-new-invoice">
+                            New invoice
+                        </ButtonLink>
+                        <ExportButton label="Export summary" />
+                    </div>
+                }
             />
 
             <div className="grid gap-4 sm:grid-cols-4">
-                <Stat label="Outstanding" value={money(outstanding)} hint="Across 4 invoices" />
+                <Stat label="Outstanding" value={money(outstanding)} hint={`Across ${unpaid.length} invoice${unpaid.length === 1 ? "" : "s"}`} />
                 <Stat label="Collected" value={money(collected)} hint="Settled this month" />
                 <Stat label="Overdue" value={String(overdue)} hint="Needs chasing" />
                 <Stat label="Customers" value={String(CUSTOMERS.length)} hint="3 active" />
