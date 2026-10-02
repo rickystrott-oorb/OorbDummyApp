@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { INVOICES, customerById, money } from "@/lib/data/fixtures";
-import { Badge, PageHeader, RowLink, Table } from "@/components/ui/primitives";
+import { Badge, ButtonLink, PageHeader, RowLink, Table } from "@/components/ui/primitives";
 import { ExportButton } from "@/components/ui/export-button";
 
 export const metadata: Metadata = { title: "Invoices" };
@@ -10,9 +10,9 @@ export const metadata: Metadata = { title: "Invoices" };
 export const dynamic = "force-dynamic";
 
 /**
- * Every invoice. Note this file contains no href of its own — the link to a
- * row's detail page is inside `RowLink`, which is how most list screens are
- * actually written.
+ * Every invoice. The link to a row's detail page is inside `RowLink`, which
+ * is how most list screens are actually written; the one href written here
+ * is the way to raise a new invoice.
  */
 export default function InvoicesPage() {
     return (
@@ -20,7 +20,14 @@ export default function InvoicesPage() {
             <PageHeader
                 title="Invoices"
                 description="Everything issued, and what it is waiting on."
-                action={<ExportButton />}
+                action={
+                    <div className="flex items-center gap-2">
+                        <ButtonLink href="/invoices/new" testId="invoices-new-invoice">
+                            New invoice
+                        </ButtonLink>
+                        <ExportButton />
+                    </div>
+                }
             />
 
             <Table columns={["Invoice", "Customer", "Issued", "Due", "Status", "Total"]}>
