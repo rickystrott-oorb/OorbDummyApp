@@ -114,6 +114,33 @@ export const PERSONAS: Persona[] = [
             { id: "ws_levis", domain: "levis.test", name: "Levis" },
         ],
     },
+    {
+        userId: "u_7",
+        name: "Jordan Ellis",
+        email: "jordan.ellis@deloitte.com",
+        company: "Deloitte",
+        role: "member",
+        plan: "scale",
+        demonstrates: "Unknown person, unknown company — nothing in Oorb yet",
+    },
+    {
+        userId: "u_8",
+        name: "Nadia Brooks",
+        email: "nadia.brooks@microsoft.com",
+        company: "Microsoft",
+        role: "admin",
+        plan: "scale",
+        demonstrates: "Unknown person, unknown company — nothing in Oorb yet",
+    },
+    {
+        userId: "u_9",
+        name: "Cole Henderson",
+        email: "cole.henderson@espn.com",
+        company: "ESPN",
+        role: "member",
+        plan: "growth",
+        demonstrates: "Unknown person, unknown company — nothing in Oorb yet",
+    },
 ];
 
 /** The persona for an address, when the form was filled from the list. */
