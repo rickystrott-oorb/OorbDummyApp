@@ -14,8 +14,8 @@ export const metadata: Metadata = {
 /**
  * The document shell.
  *
- * The Oorb Signals snippet is loaded here — once, for every page including the
- * marketing ones, which is how a customer would actually install it. Both
+ * The Oorb Signals snippet is loaded here — once, for every page, which is
+ * how a customer would actually install it. Both
  * values come from the environment so this repo carries no key of its own:
  * with them unset the tag is simply not rendered.
  *

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
  * Who is signed in, and what they are allowed to see.
  *
  * There is no real identity provider here — the session is a cookie the
- * sign-in form writes. That is enough for the thing this app exists to
+ * persona switcher writes. That is enough for the thing this app exists to
  * exercise: every screen gates on a CONDITION, and the condition is written
  * plainly so a reader can quote it.
  *
@@ -51,7 +51,7 @@ const COOKIE = "ledgerline_session";
  * Who you are before you have said who you are.
  *
  * An owner on the top plan, so nothing is hidden on a first visit. Switch at
- * /sign-in to see the other side of any gate.
+ * /switch to see the other side of any gate.
  */
 const DEFAULT_SESSION: Session = {
     userId: "u_1",
@@ -101,16 +101,16 @@ export async function getSession(): Promise<Session | null> {
 }
 
 /**
- * The session, or off to sign-in.
+ * The session, or off to the persona switcher.
  *
  * The redirect is real code and still runs if a session is ever absent — it is
  * simply not reached today, because `getSession` always resolves one. Left
- * exactly as written: it is the auth gate every screen under `(app)` sits
- * behind, and deleting it would quietly remove the thing this app models.
+ * in place: it is the auth gate every screen under `(app)` sits behind, and
+ * deleting it would quietly remove the thing this app models.
  */
 export async function requireSession(): Promise<Session> {
     const session = await getSession();
-    if (!session) redirect("/sign-in");
+    if (!session) redirect("/switch");
     return session;
 }
 

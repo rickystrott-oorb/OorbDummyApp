@@ -66,11 +66,11 @@ export function Sidebar({ session }: { session: Session }) {
                 {/* Not a logout — nobody is ever signed out here. This picks
                     a different role and plan so a gate can be shown refusing. */}
                 <Link
-                    href="/sign-in"
+                    href="/switch"
                     data-testid="switch-persona"
                     className="mt-2 block rounded-md px-2 py-1.5 text-sm text-slate-500 hover:bg-slate-100 hover:text-ink"
                 >
-                    Switch role or plan
+                    Switch persona
                 </Link>
             </div>
         </aside>

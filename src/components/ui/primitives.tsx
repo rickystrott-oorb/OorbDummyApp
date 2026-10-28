@@ -117,7 +117,7 @@ export function Locked({ reason, cta }: { reason: string; cta?: string }) {
             <p className="mx-auto mt-1 max-w-md text-sm text-slate-600">{reason}</p>
             {cta && (
                 <Link
-                    href="/pricing"
+                    href="/switch"
                     className="mt-4 inline-block rounded-md bg-sea px-4 py-2 text-sm font-medium text-white hover:bg-sea/90"
                 >
                     {cta}

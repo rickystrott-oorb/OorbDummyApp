@@ -3,21 +3,24 @@ import type { Metadata } from "next";
 import { signInAction } from "@/lib/auth/actions";
 import { PERSONAS } from "@/lib/auth/personas";
 
-export const metadata: Metadata = { title: "Switch role or plan" };
+export const metadata: Metadata = { title: "Switch persona" };
 
 /**
  * Become somebody else.
  *
  * Not a login — this app has no signed-out state, and going straight to any
- * screen works. This is how you get to the OTHER side of a gate: pick a member
- * on the free plan and watch Admin, Team, API keys and Forecasting all refuse.
+ * screen works; the marketing pages and the sign-in that used to front it are
+ * gone, since the app exists only for testing. This is how you get to the
+ * OTHER side of a gate (pick a member on the free plan and watch Admin, Team,
+ * API keys and Forecasting all refuse) and how you arrive at Oorb as a
+ * different company (a persona).
  */
-export default function SignInPage() {
+export default function SwitchPage() {
     return (
         <div className="mx-auto max-w-sm space-y-6">
             <div>
                 <h1 className="text-2xl font-bold tracking-tight text-ink">
-                    Switch role or plan
+                    Switch persona
                 </h1>
                 <p className="mt-1 text-sm text-slate-600">
                     You are already signed in as an owner. Change the role or plan

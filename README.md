@@ -18,12 +18,14 @@ npm install
 npm run dev        # http://localhost:3001
 ```
 
-**There is no login.** Open any URL and you are already an owner on the top
-plan, so every screen works on a fresh browser — a login wall is a minute of
-nothing at the front of every demo.
+**There is no login, and no front door.** The root opens the dashboard, and
+any URL works on a fresh browser as an owner on the top plan — a landing
+page and a sign-in form are a minute of nothing at the front of every test.
 
-The gates are still real. To see one refuse you, go to `/sign-in` (linked as
-"Switch role or plan" in the sidebar) and become a member on the free plan.
+The gates are still real. To see one refuse you, go to `/switch` (linked as
+"Switch persona" in the sidebar) and become a member on the free plan; the
+same page makes you one of the personas, so you arrive at Oorb as a
+different company.
 
 ## Pointing it at Oorb Signals
 
@@ -67,7 +69,7 @@ renders, depresses and does nothing. Everything else goes somewhere. That
 contrast is the whole value: if several things were dead, a rage-click would
 stop meaning anything.
 
-**Forms worth abandoning** on `/sign-up`, `/invoices/new` and
+**Forms worth abandoning** on `/switch`, `/invoices/new` and
 `/settings/notifications` — a form somebody starts and leaves is the only way to
 produce a form-abandon signal.
 
@@ -77,5 +79,5 @@ No database. Every figure is a fixture in `src/lib/data/fixtures.ts`, and the
 numbers are stable rather than random: a value that changed on refresh would
 look like a live counter and hide the one control that is genuinely broken.
 
-No real authentication. The session is a cookie the sign-in form writes, trusted
+No real authentication. The session is a cookie the persona switcher writes, trusted
 completely. The point is to have screens that gate, not a login worth attacking.
