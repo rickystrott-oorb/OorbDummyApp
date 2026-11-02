@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 
-import { OorbIdentity } from "@/components/oorb-identity";
+import { Oorb } from "@/components/oorb";
 import { getSession } from "@/lib/auth/session";
 
 import "./globals.css";
@@ -14,15 +13,12 @@ export const metadata: Metadata = {
 /**
  * The document shell.
  *
- * The Oorb Signals snippet is loaded here — once, for every page, which is
- * how a customer would actually install it. Both
- * values come from the environment so this repo carries no key of its own:
- * with them unset the tag is simply not rendered.
- *
- * IDENTITY RIDES ON THE TAG **and is then kept true by `<OorbIdentity/>`**.
- * The tag alone is right only for the first load: `o.js` reads it when it
- * boots, and in the App Router signing in is a client navigation, so the
- * script never re-executes. See the component — it cost a live test to find.
+ * Oorb is installed here through its npm package (`@oorb/browser`) — once,
+ * for every page, which is how a customer would install it. The key and
+ * where Oorb lives come from the environment, so this repo carries no key of
+ * its own: with either unset Oorb is simply not loaded. `NEXT_PUBLIC_OORB_SRC`
+ * is the snippet's address as the script-tag install had it; the package
+ * wants the origin, which is read off it.
  *
  * Note what is NOT happening. This app keeps its session in an `httpOnly`
  * cookie, which JavaScript cannot read by design — so a tracking script could
@@ -36,49 +32,38 @@ export default async function RootLayout({
     children: React.ReactNode;
 }) {
     const key = process.env.NEXT_PUBLIC_OORB_KEY;
-    const src = process.env.NEXT_PUBLIC_OORB_SRC;
+    const origin = originOf(process.env.NEXT_PUBLIC_OORB_SRC);
     const session = await getSession();
 
     return (
         <html lang="en">
             <body>
-                {children}
-                {key && src && (
-                    <Script
-                        src={src}
-                        data-key={key}
-                        // Absent rather than empty for a signed-out visitor, so
-                        // they arrive anonymous instead of identified as "".
-                        {...(session?.email
-                            ? {
-                                  "data-user-id": session.userId,
-                                  "data-user-email": session.email,
-                                  "data-user-name": session.name,
-                                  // Which customer workspace is open. Absent
-                                  // for a single-company user, whose domain
-                                  // already says; present for a consultant,
-                                  // whose domain says nothing.
-                                  ...(session.accountId
-                                      ? {
-                                            "data-account-id": session.accountId,
-                                            "data-account-domain": session.accountDomain,
-                                        }
-                                      : {}),
-                              }
-                            : {})}
-                        strategy="afterInteractive"
-                    />
-                )}
-                {key && src && (
-                    <OorbIdentity
+                {key && origin ? (
+                    <Oorb
+                        publicKey={key}
+                        origin={origin}
                         userId={session?.userId}
                         email={session?.email}
                         name={session?.name}
                         accountId={session?.accountId}
                         accountDomain={session?.accountDomain}
-                    />
+                    >
+                        {children}
+                    </Oorb>
+                ) : (
+                    children
                 )}
             </body>
         </html>
     );
+}
+
+/** "http://localhost:3000/o.js" → "http://localhost:3000"; nothing for nothing usable. */
+function originOf(src: string | undefined): string | null {
+    if (!src) return null;
+    try {
+        return new URL(src).origin;
+    } catch {
+        return null;
+    }
 }
